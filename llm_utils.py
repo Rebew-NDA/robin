@@ -1,3 +1,4 @@
+import config
 import requests
 from urllib.parse import urljoin
 from langchain_openai import ChatOpenAI
@@ -15,8 +16,6 @@ from config import (
     OPENAI_API_KEY,
     ANTHROPIC_API_KEY,
     LLAMA_CPP_BASE_URL,
-    CUSTOM_API_BASE_URL,
-    CUSTOM_API_KEY,
 )
 
 
@@ -241,9 +240,9 @@ def fetch_llama_cpp_models() -> List[str]:
 
 def fetch_custom_api_models() -> List[str]:
     """Retrieve models from any OpenAI-compatible API endpoint."""
-    if not CUSTOM_API_BASE_URL:
+    if not config.CUSTOM_API_BASE_URL:
         return []
-    base = CUSTOM_API_BASE_URL.rstrip("/")
+    base = config.CUSTOM_API_BASE_URL.rstrip("/")
     if not base.endswith("/v1"):
         base += "/v1"
     try:
@@ -357,7 +356,7 @@ def resolve_model_config(model_choice: str):
     # Custom OpenAI-compatible API
     for custom_model in fetch_custom_api_models():
         if _normalize_model_name(custom_model) == model_choice_lower:
-            base = (CUSTOM_API_BASE_URL or "").rstrip("/")
+            base = (config.CUSTOM_API_BASE_URL or "").rstrip("/")
             if not base.endswith("/v1"):
                 base += "/v1"
             return {
@@ -365,7 +364,7 @@ def resolve_model_config(model_choice: str):
                 "constructor_params": {
                     "model_name": custom_model,
                     "base_url": base,
-                    "api_key": CUSTOM_API_KEY or "sk-custom",
+                    "api_key": config.CUSTOM_API_KEY or "sk-custom",
                     "streaming": False,
                 },
             }

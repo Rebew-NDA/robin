@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from scrape import scrape_multiple
 from search import get_search_results
+import config as _robin_cfg
 from llm_utils import BufferedStreamingHandler, get_model_choices, get_model_display_names
 from llm import get_llm, refine_query, filter_results, generate_summary, PRESET_PROMPTS
 from config import (
@@ -132,6 +133,30 @@ st.sidebar.markdown(
 st.sidebar.subheader("Settings")
 def _env_is_set(value) -> bool:
     return bool(value and str(value).strip() and "your_" not in str(value))
+
+# Seed session state from .env on first run
+if "custom_api_url" not in st.session_state:
+    st.session_state["custom_api_url"] = _robin_cfg.CUSTOM_API_BASE_URL or ""
+if "custom_api_key" not in st.session_state:
+    st.session_state["custom_api_key"] = _robin_cfg.CUSTOM_API_KEY or ""
+
+with st.sidebar.expander("🔌 Custom API Provider"):
+    st.text_input(
+        "Base URL",
+        key="custom_api_url",
+        placeholder="https://api.groq.com/openai/v1",
+        help="Base URL for any OpenAI-compatible API (Groq, Mistral, LM Studio, etc.)",
+    )
+    st.text_input(
+        "API Key",
+        key="custom_api_key",
+        type="password",
+        help="API key for the custom provider (leave blank if not required)",
+    )
+
+# Push sidebar values into config so llm_utils picks them up this rerun
+_robin_cfg.CUSTOM_API_BASE_URL = st.session_state["custom_api_url"].strip() or None
+_robin_cfg.CUSTOM_API_KEY = st.session_state["custom_api_key"].strip() or None
 
 model_options = get_model_choices()
 model_display_names = get_model_display_names(model_options)
