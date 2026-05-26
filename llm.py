@@ -70,7 +70,7 @@ def _ensure_credentials(model_choice: str, llm_class, model_params: dict) -> Non
         elif base_url and ("localhost" in base_url or "127.0.0.1" in base_url):
             pass  # local model — no API key required
         elif CUSTOM_API_BASE_URL and base_url and CUSTOM_API_BASE_URL.lower().rstrip("/") in base_url:
-            _require(CUSTOM_API_KEY, "CUSTOM_API_KEY", "Custom API")
+            pass  # custom provider — API key is optional (some providers don't require one)
         else:
             _require(OPENAI_API_KEY, "OPENAI_API_KEY", "OpenAI")
 

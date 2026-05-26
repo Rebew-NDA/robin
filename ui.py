@@ -134,27 +134,13 @@ st.sidebar.subheader("Settings")
 def _env_is_set(value) -> bool:
     return bool(value and str(value).strip() and "your_" not in str(value))
 
-# Seed session state from .env on first run
+# Seed session state from .env on first run (must happen before get_model_choices)
 if "custom_api_url" not in st.session_state:
     st.session_state["custom_api_url"] = _robin_cfg.CUSTOM_API_BASE_URL or ""
 if "custom_api_key" not in st.session_state:
     st.session_state["custom_api_key"] = _robin_cfg.CUSTOM_API_KEY or ""
 
-with st.sidebar.expander("🔌 Custom API Provider"):
-    st.text_input(
-        "Base URL",
-        key="custom_api_url",
-        placeholder="https://api.groq.com/openai/v1",
-        help="Base URL for any OpenAI-compatible API (Groq, Mistral, LM Studio, etc.)",
-    )
-    st.text_input(
-        "API Key",
-        key="custom_api_key",
-        type="password",
-        help="API key for the custom provider (leave blank if not required)",
-    )
-
-# Push sidebar values into config so llm_utils picks them up this rerun
+# Push current session values into config so llm_utils picks them up this rerun
 _robin_cfg.CUSTOM_API_BASE_URL = st.session_state["custom_api_url"].strip() or None
 _robin_cfg.CUSTOM_API_KEY = st.session_state["custom_api_key"].strip() or None
 
@@ -187,6 +173,20 @@ model = st.sidebar.selectbox(
 )
 if any(name not in {"gpt4o", "gpt-4.1", "claude-3-5-sonnet-latest", "llama3.1", "gemini-2.5-flash"} for name in model_options):
     st.sidebar.caption("Locally detected Ollama models are automatically added to this list.")
+
+with st.sidebar.expander("🔌 Custom API Provider"):
+    st.text_input(
+        "Base URL",
+        key="custom_api_url",
+        placeholder="https://api.groq.com/openai/v1",
+        help="Base URL for any OpenAI-compatible API (Groq, Mistral, LM Studio, etc.)",
+    )
+    st.text_input(
+        "API Key",
+        key="custom_api_key",
+        type="password",
+        help="API key for the custom provider (leave blank if not required)",
+    )
 threads = st.sidebar.slider("Scraping Threads", 1, 16, 4, key="thread_slider")
 max_results = st.sidebar.slider(
     "Max Results to Filter", 10, 100, 50, key="max_results_slider",
