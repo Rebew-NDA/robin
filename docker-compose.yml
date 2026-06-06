@@ -10,9 +10,9 @@ services:
     expose:
       - "8501"
     networks:
-      - proxy
+      - caddy
 
 networks:
-  proxy:
+  caddy:
     external: true
-    name: proxy
+    name: caddy
